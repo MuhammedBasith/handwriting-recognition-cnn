@@ -113,7 +113,13 @@ export const FileUpload = ({ onChange }) => {
             {file ? (
               <motion.div
                 layoutId="file-upload"
-                className="relative z-40 bg-white dark:bg-neutral-900 flex flex-col items-start p-4 rounded-md">
+                className="relative z-40 bg-white dark:bg-neutral-900 flex flex-col items-center p-4 rounded-md">
+                {/* Image preview */}
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Uploaded preview"
+                  className="w-full h-auto max-w-md rounded-md mb-4"
+                />
                 <p className="text-base text-neutral-700 dark:text-neutral-300 truncate">
                   {file.name}
                 </p>
