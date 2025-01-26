@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
+import requests
 from flask_cors import CORS
-from utils import predict
 
 app = Flask(__name__)
 CORS(app)
@@ -36,12 +36,22 @@ def upload_file():
         prediction_type = request.form.get('predictionType', '')
         print(prediction_type)
 
-        try:
-            prediction_result = predict(file_path)
+        with open(file_path, 'rb') as f:
+            file_data = f.read()
 
-            return jsonify({'message': 'File processed successfully', 'prediction': prediction_result}), 200
+        try:
+            nodejs_url = "http://localhost:4000/upload-image" 
+            files = {'image': (filename, file_data, 'image/jpeg')}
+            response = requests.post(nodejs_url, files=files)
+
+            if response.status_code == 200:
+                prediction_result = response.json().get('caption', 'No caption available')
+
+                return jsonify({'message': 'File processed successfully', 'prediction': prediction_result}), 200
+            else:
+                return jsonify({'error': 'Error from Node.js server'}), 500
         except Exception as e:
-            return jsonify({'error': f'Error processing image: {str(e)}'}), 500
+            return jsonify({'error': f'Error sending image to Node.js server: {str(e)}'}), 500
 
     return jsonify({'error': 'File not allowed'}), 400
 
